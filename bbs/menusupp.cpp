@@ -261,6 +261,8 @@ void KillEMail() {
 }
 
 void LastCallers() {
+  bout << "|#1Last Callers for |#5" << a()->config()->system_name();
+  bout.nl(2);
   if (a()->HasConfigFlag(OP_FLAGS_SHOW_CITY_ST) &&
       (a()->config()->sysconfig_flags() & sysconfig_extended_info)) {
     bout << "|#2Number Name/Handle               Time  Date  City            ST Cty Modem    ##\r\n";
@@ -270,6 +272,30 @@ void LastCallers() {
   char filler_char = okansi() ? '\xCD' : '=';
   bout << "|#7" << string(79, filler_char) << wwiv::endl;
   printfile(LASTON_TXT);
+  bout << "|#7" << string(79, filler_char) << wwiv::endl;
+  pausescr();
+
+// InterWWIV BBS Last Caller code starts here
+    for (const auto& n : a()->net_networks) {
+      char s1[180];
+      if (!n.sysnum) {
+        continue;
+      }
+      sprintf(s1, "%slaston.txt", n.dir.c_str());
+      if (File::Exists(s1)) {
+// centered:        bout << std::string(27-(strlen(n.name)/2),' ') << "|#5InterBBS Last Callers for |#6" << n.name ;
+        bout << "|#1InterBBS Last Callers for |#5" << n.name  << "|#7: |#0";
+        bout.nl(2);
+        bout << "|#2Name/Handle    Time   Date     City                     BBS" << wwiv::endl;
+        char chLine = (okansi()) ? static_cast<char>('\xCD') : '=';
+        bout << "|#7" << std::string(79, chLine) << wwiv::endl;
+        printfile(s1);
+        bout << "|#7" << std::string(79, chLine) << wwiv::endl;
+        pausescr();
+      }
+    }
+// InterWWIV BBS Last Caller code ends here
+
 }
 
 void ReadEMail() {

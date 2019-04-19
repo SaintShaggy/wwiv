@@ -575,6 +575,7 @@ static void UpdateLastOnFile() {
     TextFile laston_file(laston_txt_filename, "r");
     lines = laston_file.ReadFileIntoVector();
   }
+  char chLine = (okansi()) ? static_cast<char>('\xCD') : '=';
 
   if (!lines.empty()) {
     bool needs_header = true;
@@ -584,7 +585,7 @@ static void UpdateLastOnFile() {
       }
       if (needs_header) {
         bout.nl(2);
-        bout << "|#1Last few callers|#7: |#0";
+        bout << "|#1Last few callers to |#5" << a()->config()->system_name() << "|#7: |#0";
         bout.nl(2);
         if (a()->HasConfigFlag(OP_FLAGS_SHOW_CITY_ST) &&
             (a()->config()->sysconfig_flags() & sysconfig_extended_info)) {
@@ -592,14 +593,33 @@ static void UpdateLastOnFile() {
         } else {
           bout << "|#2Number Name/Handle               Language   Time  Date  Speed                ##" << wwiv::endl;
         }
-        char chLine = (okansi()) ? static_cast<char>('\xCD') : '=';
         bout << "|#7" << std::string(79, chLine) << wwiv::endl;
         needs_header = false;
       }
       bout << line << wwiv::endl;
     }
-    bout.nl(2);
+    bout << "|#7" << std::string(79, chLine) << wwiv::endl;
+//    bout.nl(2);
     pausescr();
+// InterWWIV BBS Last Caller code starts here
+    for (const auto& n : a()->net_networks) {
+      char s1[180];
+      if (!n.sysnum) {
+        continue;
+      }
+      sprintf(s1, "%slaston.txt", n.dir.c_str());
+      if (File::Exists(s1)) {
+        bout << std::string(25-(strlen(n.name)/2),' ') << "|#5InterBBS Last Callers for |#6" << n.name  << wwiv::endl;
+//        bout << "|#1InterBBS Last Callers for |#5" << n.name  << "|#7: |#0";
+//        bout.nl(2);
+        bout << "|#2Name/Handle    Time   Date     City                     BBS" << wwiv::endl;
+        bout << "|#7" << std::string(79, chLine) << wwiv::endl;
+        printfile(s1);
+        bout << "|#7" << std::string(79, chLine) << wwiv::endl;
+        pausescr();
+      }
+    }
+// InterWWIV BBS Last Caller code ends here
   }
 
   auto status = a()->status_manager()->GetStatus();
